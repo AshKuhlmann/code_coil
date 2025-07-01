@@ -12,6 +12,10 @@ keywords:
 
 ...
 
+# Think
+
+...
+
 # Answer
 
 ...
