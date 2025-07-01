@@ -42,6 +42,11 @@ def analyze_dataset(root_path="python_qa"):
         print(df['subtopic'].value_counts())
         print("\n")
 
+    if 'difficulty' in df.columns:
+        print("--- Content by Difficulty ---")
+        print(df['difficulty'].value_counts())
+        print("\n")
+
     print("--- Analysis Complete ---\n")
 
 
