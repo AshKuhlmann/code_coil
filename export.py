@@ -1,10 +1,12 @@
-import os
-import frontmatter
 import json
 from pathlib import Path
+import frontmatter
 
 
-def export_dataset(root_path="python_qa", output_file="training_dataset.json"):
+def export_dataset(
+    root_path: str = "python_qa",
+    output_file: str = "training_dataset.json",
+) -> None:
     """
     Parses all .md files, formats them into a JSON structure for LLM training,
     and saves them to a single file.
@@ -34,7 +36,10 @@ def export_dataset(root_path="python_qa", output_file="training_dataset.json"):
                 }
                 all_entries.append(entry)
             else:
-                print(f"Warning: Skipping {md_file} due to missing 'Question' or 'Answer' header.")
+                print(
+                    f"Warning: Skipping {md_file} due to missing "
+                    "'Question' or 'Answer' header."
+                )
 
         except Exception as e:
             print(f"Error parsing {md_file}: {e}")
@@ -43,7 +48,9 @@ def export_dataset(root_path="python_qa", output_file="training_dataset.json"):
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(all_entries, f, indent=2, ensure_ascii=False)
 
-    print(f"Export complete. {len(all_entries)} entries saved to {output_file}.")
+    print(
+        f"Export complete. {len(all_entries)} entries saved to {output_file}."
+    )
 
 
 if __name__ == "__main__":
