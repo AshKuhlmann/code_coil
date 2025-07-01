@@ -9,6 +9,7 @@ def analyze_dataset(root_path="python_qa"):
     and prints a report on content coverage.
     """
     all_metadata = []
+    think_section_count = 0
     root_dir = Path(root_path)
 
     print("Starting analysis...")
@@ -18,6 +19,8 @@ def analyze_dataset(root_path="python_qa"):
         try:
             post = frontmatter.load(md_file)
             all_metadata.append(post.metadata)
+            if "# Think" in post.content:
+                think_section_count += 1
         except Exception as e:
             print(f"Error parsing {md_file}: {e}")
 
@@ -30,6 +33,11 @@ def analyze_dataset(root_path="python_qa"):
 
     print("\n--- Dataset Analysis Report ---\n")
     print(f"Total Entries Found: {len(df)}\n")
+
+    # Report on Chain-of-Thought usage
+    print("--- Chain-of-Thought (CoT) Usage ---")
+    print(f"Entries with CoT: {think_section_count}")
+    print(f"Entries without CoT: {len(df) - think_section_count}\n")
 
     # Generate value counts for key metadata fields
     if 'topic' in df.columns:
