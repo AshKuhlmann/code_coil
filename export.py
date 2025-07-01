@@ -26,14 +26,13 @@ def export_dataset(
             if "# Question" in content and "# Answer" in content:
                 think_part = None
 
-                question_part = (
-                    content.split("# Think")[0].replace("# Question", "").strip()
-                )
+                question_raw = content.split("# Think")[0]
+                question_part = question_raw.replace("# Question", "").strip()
 
                 if "# Think" in content:
-                    think_part = (
-                        content.split("# Think")[1].split("# Answer")[0].strip()
-                    )
+                    think_section = content.split("# Think")[1]
+                    think_raw = think_section.split("# Answer")[0]
+                    think_part = think_raw.strip()
                     answer_part = content.split("# Answer")[1].strip()
                 else:
                     answer_part = content.split("# Answer")[1].strip()
@@ -59,7 +58,10 @@ def export_dataset(
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(all_entries, f, indent=2, ensure_ascii=False)
 
-    print(f"Export complete. {len(all_entries)} entries saved to {output_file}.")
+    msg = (
+        f"Export complete. {len(all_entries)} entries saved to {output_file}."
+    )
+    print(msg)
 
 
 if __name__ == "__main__":
