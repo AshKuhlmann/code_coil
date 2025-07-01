@@ -1,5 +1,3 @@
-import os
-
 import frontmatter
 import pandas as pd
 from pathlib import Path
