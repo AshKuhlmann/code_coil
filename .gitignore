@@ -6,6 +6,9 @@ __pycache__/
 # OS
 .DS_Store
 
+# Datasets
+*.json
+
 *.pyo
 *.pyd
 
