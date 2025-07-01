@@ -1,5 +1,11 @@
+# Python
+venv/
 __pycache__/
 *.pyc
+
+# OS
+.DS_Store
+
 *.pyo
 *.pyd
 
@@ -12,4 +18,3 @@ htmlcov/
 
 # Python packaging
 *.egg-info/
-
