@@ -21,7 +21,7 @@ def test_get_multiline_input_long_and_odd(monkeypatch):
 
 
 def test_create_entry_with_long_inputs(tmp_path, monkeypatch):
-    root = tmp_path / "python_qa"
+    root = tmp_path / "content" / "python"
     root.mkdir()
 
     long_question = "Q" * 500

@@ -3,7 +3,7 @@ import pandas as pd
 from pathlib import Path
 
 
-def analyze_dataset(root_path="python_qa"):
+def analyze_dataset(domain: str = "python", root_path: str = "content"):
     """
     Walks through the dataset directory, parses metadata from each file,
     and prints a report on content coverage.

@@ -9,7 +9,7 @@
 <div align="center">
 
 [![Dataset Size](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2F<YOUR_USERNAME>%2FCodeCoil%2Fmain%2Fstats.json&query=%24.total_entries&label=Q%26A%20Pairs&color=blueviolet)](https://github.com/<YOUR_USERNAME>/CodeCoil)
-[![Topics Covered](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2F<YOUR_USERNAME>%2FCodeCoil%2Fmain%2Fstats.json&query=%24.total_topics&label=Topics&color=blue)](https://github.com/<YOUR_USERNAME>/CodeCoil/tree/main/python_qa)
+[![Topics Covered](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2F<YOUR_USERNAME>%2FCodeCoil%2Fmain%2Fstats.json&query=%24.total_topics&label=Topics&color=blue)](https://github.com/<YOUR_USERNAME>/CodeCoil/tree/main/content/python)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Pull Requests Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
@@ -112,7 +112,7 @@ Our process is designed to be simple and effective:
     Look at the output. Is the `control_flow` topic empty? Does `data_structures` need more `hard` questions? This report is your guide.
 
 4.  **Create New Content**
-    * Navigate to the appropriate directory: `python_qa/<topic>/<subtopic>/`. Create new topic or subtopic folders if they don't exist.
+    * Navigate to the appropriate directory: `content/<domain>/<topic>/<subtopic>/`. Create new domain, topic or subtopic folders if they don't exist.
     * Create a new file (e.g., `015_list_comprehensions.md`).
     * Copy the contents of `TEMPLATE.md` into your new file.
     * **Fill out the metadata (front matter) completely:**
@@ -148,5 +148,5 @@ Our process is designed to be simple and effective:
 
 This project includes two key Python scripts in the root directory:
 
-* `analyze_qa.py`: Scans the entire `python_qa` directory, parses the metadata from every `.md` file, and generates a real-time report on the dataset's composition. This is essential for guiding our content creation efforts.
+* `analyze_qa.py`: Scans the entire `content/<domain>` directory, parses the metadata from every `.md` file, and generates a real-time report on the dataset's composition. This is essential for guiding our content creation efforts.
 * `export.py`: Parses all `.md` files and compiles them into a single, clean `training_dataset.json` file. This is the final artifact used for training models.

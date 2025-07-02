@@ -5,7 +5,7 @@ from pathlib import Path
 
 # --- Configuration ---
 # The root directory where all the Q&A markdown files are stored.
-CONTENT_ROOT = "python_qa"
+CONTENT_ROOT = "content"
 # The terminator for multi-line input.
 INPUT_TERMINATOR = "::END::"
 
@@ -59,22 +59,27 @@ def get_multiline_input(prompt):
     return "\n".join(lines)
 
 
-def create_new_entry():
+def create_new_entry(content_root=None):
     """
     Main function to guide the user through creating a new Q&A entry.
     """
     print("--- CodeCoil: New Q&A Entry Creator ---")
 
-    root_path = Path(CONTENT_ROOT)
+    root_path = Path(content_root) if content_root else Path(CONTENT_ROOT)
     if not root_path.exists():
         print(f"Error: Content directory '{CONTENT_ROOT}' not found.")
         print("Please run this script from the root of your CodeCoil project.")
         return
 
-    # 1. Get Topic and Subtopic
-    existing_topics = get_existing_dirs(root_path)
+    # 1. Get Domain, Topic, and Subtopic
+    existing_domains = get_existing_dirs(root_path)
+    domain = select_from_list(existing_domains, "domain")
+    domain_path = root_path / domain
+    domain_path.mkdir(parents=True, exist_ok=True)
+
+    existing_topics = get_existing_dirs(domain_path)
     topic = select_from_list(existing_topics, "topic")
-    topic_path = root_path / topic
+    topic_path = domain_path / topic
 
     existing_subtopics = get_existing_dirs(topic_path)
     subtopic = select_from_list(existing_subtopics, "subtopic")
@@ -127,7 +132,7 @@ def create_new_entry():
 
     date_str = datetime.now().strftime("%Y%m%d")
     # A simple way to generate a semi-unique ID for the day
-    id_num = len(list(root_path.glob('**/*.md'))) + 1
+    id_num = len(list(domain_path.glob('**/*.md'))) + 1
     unique_id = f"{date_str}-{id_num:04d}"
 
     # 5. Assemble the final Markdown content
@@ -135,6 +140,7 @@ def create_new_entry():
     front_matter = (
         f"---\n"
         f"id: {unique_id}\n"
+        f"domain: \"{domain}\"\n"
         f"topic: \"{topic}\"\n"
         f"subtopic: \"{subtopic}\"\n"
         f"difficulty: \"{difficulty}\"\n"

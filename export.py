@@ -3,16 +3,15 @@ from pathlib import Path
 import frontmatter
 
 
-def export_dataset(
-    root_path: str = "python_qa",
-    output_file: str = "training_dataset.json",
-) -> None:
+def export_qa_to_json(
+    output_file: str = "qa_data.json", domain: str = "python", root_path: str = "content"
+):
     """
     Parses all .md files, formats them into a JSON structure for LLM training,
     and saves them to a single file.
     """
     all_entries = []
-    root_dir = Path(root_path)
+    full_root_path = Path(root_path) / domain
 
     print(f"Starting export to {output_file}...")
 
