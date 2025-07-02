@@ -48,9 +48,7 @@ def select_from_list(options, prompt_text):
 
 
 def get_multiline_input(prompt):
-    """
-    Collects multi-line input from the user until the terminator is entered.
-    """
+    """Collect multi-line input until the terminator is entered."""
     lines = []
     print(f"{prompt} (type '{INPUT_TERMINATOR}' on a new line when finished):")
     while True:
@@ -85,7 +83,8 @@ def create_new_entry():
 
     # 2. Get Content (Question, Answer, and optional Thinking)
     print("\n--- Enter Content ---")
-    question = input("Question: ").strip()
+    # All text fields require the terminator to finish input
+    question = get_multiline_input("Question").strip()
 
     if not question:
         print("\nError: Question cannot be empty. Aborting.")
