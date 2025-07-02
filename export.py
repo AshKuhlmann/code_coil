@@ -1,13 +1,21 @@
+"""Exports the CodeCoil dataset into a single JSON file for LLM training.
+
+This script parses all Markdown files within the 'content/' directory,
+extacts their question, answer, and metadata, and compiles them into a
+structured JSON format suitable for training Large Language Models.
+"""
 import json
 from pathlib import Path
+
 import frontmatter
 
 
 def export_qa_to_json(
-    output_file: str = "qa_data.json", domain: str = "python", root_path: str = "content"
+    output_file: str = "qa_data.json",
+    domain: str = "python",
+    root_path: str = "content",
 ):
-    """
-    Parses all .md files, formats them into a JSON structure for LLM training,
+    """Parses all .md files, formats them into a JSON structure for LLM training,
     and saves them to a single file.
     """
     all_entries = []
@@ -16,7 +24,7 @@ def export_qa_to_json(
     print(f"Starting export to {output_file}...")
 
     # Recursively find all markdown files
-    for md_file in root_dir.glob("**/*.md"):
+    for md_file in full_root_path.glob("**/*.md"):
         try:
             post = frontmatter.load(md_file)
             content = post.content.strip()
@@ -57,11 +65,9 @@ def export_qa_to_json(
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(all_entries, f, indent=2, ensure_ascii=False)
 
-    msg = (
-        f"Export complete. {len(all_entries)} entries saved to {output_file}."
-    )
+    msg = f"Export complete. {len(all_entries)} entries saved to {output_file}."
     print(msg)
 
 
 if __name__ == "__main__":
-    export_dataset()
+    export_qa_to_json()

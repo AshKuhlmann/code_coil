@@ -1,10 +1,18 @@
+"""Analyzes the CodeCoil dataset and generates reports on its composition.
+
+This script provides functions to inspect the Markdown files within the 'content/'
+directory, extract their metadata, and present statistics on topics, subtopics,
+difficulty levels, and the presence of 'Think' sections.
+"""
+from pathlib import Path
+
 import frontmatter
 import pandas as pd
-from pathlib import Path
 
 
 def analyze_dataset(domain: str = "python", root_path: str = "content"):
-    """
+    """Analyzes the dataset.
+
     Walks through the dataset directory, parses metadata from each file,
     and prints a report on content coverage.
     """
@@ -15,7 +23,7 @@ def analyze_dataset(domain: str = "python", root_path: str = "content"):
     print("Starting analysis...")
 
     # Recursively find all markdown files
-    for md_file in root_dir.glob('**/*.md'):
+    for md_file in root_dir.glob("**/*.md"):
         try:
             post = frontmatter.load(md_file)
             all_metadata.append(post.metadata)
@@ -40,19 +48,19 @@ def analyze_dataset(domain: str = "python", root_path: str = "content"):
     print(f"Entries without CoT: {len(df) - think_section_count}\n")
 
     # Generate value counts for key metadata fields
-    if 'topic' in df.columns:
+    if "topic" in df.columns:
         print("--- Content by Topic ---")
-        print(df['topic'].value_counts())
+        print(df["topic"].value_counts())
         print("\n")
 
-    if 'subtopic' in df.columns:
+    if "subtopic" in df.columns:
         print("--- Content by Subtopic ---")
-        print(df['subtopic'].value_counts())
+        print(df["subtopic"].value_counts())
         print("\n")
 
-    if 'difficulty' in df.columns:
+    if "difficulty" in df.columns:
         print("--- Content by Difficulty ---")
-        print(df['difficulty'].value_counts())
+        print(df["difficulty"].value_counts())
         print("\n")
 
     print("--- Analysis Complete ---\n")

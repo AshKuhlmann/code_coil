@@ -112,19 +112,27 @@ Our process is designed to be simple and effective:
     Look at the output. Is the `control_flow` topic empty? Does `data_structures` need more `hard` questions? This report is your guide.
 
 4.  **Create New Content**
-    * Navigate to the appropriate directory: `content/<domain>/<topic>/<subtopic>/`. Create new domain, topic or subtopic folders if they don't exist.
-    * Create a new file (e.g., `015_list_comprehensions.md`).
-    * Copy the contents of `TEMPLATE.md` into your new file.
-    * **Fill out the metadata (front matter) completely:**
-        * `id`: `YYYYMMDD-XXX` (e.g., `20250730-001`). Use today's date and a unique number for the day.
-        * `topic`: The main category (e.g., "Data Structures"). Must match the folder name.
-        * `subtopic`: The sub-category (e.g., "lists"). Must match the folder name.
-        * `difficulty`: `easy`, `medium`, or `hard`.
-        * `keywords`: A list of relevant lowercase keywords to improve searchability.
-    * **Write the Question and Answer:**
-        * The question should be clear, specific, and self-contained.
-        * The answer should be accurate, concise, and provide a well-formatted code example where appropriate.
-        * Use Markdown for formatting, especially for code blocks (` ```python ... ``` `).
+    * **Use the GUI tool to create new content:**
+        Run the GUI application:
+        ```bash
+        python add_entry_gui.py
+        ```
+        Fill in the fields. The tool will automatically handle ID generation, filename creation, and placing the file in the correct directory.
+        
+        Alternatively, you can manually create new content:
+        * Navigate to the appropriate directory: `content/<domain>/<topic>/<subtopic>/`. Create new domain, topic or subtopic folders if they don't exist.
+        * Create a new file (e.g., `015_list_comprehensions.md`).
+        * Copy the contents of `TEMPLATE.md` into your new file.
+        * **Fill out the metadata (front matter) completely:**
+            * `id`: `YYYYMMDD-XXX` (e.g., `20250730-001`). Use today's date and a unique number for the day.
+            * `topic`: The main category (e.g., "Data Structures"). Must match the folder name.
+            * `subtopic`: The sub-category (e.g., "lists"). Must match the folder name.
+            * `difficulty`: `easy`, `medium`, or `hard`.
+            * `keywords`: A list of relevant lowercase keywords to improve searchability.
+        * **Write the Question and Answer:**
+            * The question should be clear, specific, and self-contained.
+            * The answer should be accurate, concise, and provide a well-formatted code example where appropriate.
+            * Use Markdown for formatting, especially for code blocks (` ```python ... ``` `).
 
 5.  **Verify Your Contribution**
     Before submitting, run the scripts to make sure everything works.

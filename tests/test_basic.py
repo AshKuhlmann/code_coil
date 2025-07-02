@@ -1,10 +1,12 @@
-import sys
-from pathlib import Path
+"""Basic tests for the code_coil package.
+"""
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+"""Basic tests for the code_coil package."""
+import pytest
 
-from code_coil import hello  # noqa: E402
+from code_coil import hello
 
 
 def test_hello() -> None:
+    """Test the hello function."""
     assert hello() == "hello"

@@ -1,4 +1,9 @@
-# create_entry.py
+"""Provides a command-line interface for creating new Q&A entries.
+
+This script guides the user through the process of inputting question, answer,
+and metadata, then generates and saves the new entry as a Markdown file
+in the appropriate directory structure.
+"""
 import re
 from datetime import datetime
 from pathlib import Path
@@ -11,14 +16,15 @@ INPUT_TERMINATOR = "::END::"
 
 
 def get_existing_dirs(path):
-    """Returns a sorted list of existing directories at a given path."""
+    """Return a sorted list of existing directories at a given path."""
     if not path.is_dir():
         return []
     return sorted([d.name for d in path.iterdir() if d.is_dir()])
 
 
 def sanitize_filename(text):
-    """
+    """Sanitize a string for use as a filename.
+
     Takes a string and returns a sanitized version suitable for a filename.
     - Converts to lowercase
     - Replaces spaces and special characters with underscores
@@ -26,9 +32,9 @@ def sanitize_filename(text):
     - Truncates to a reasonable length
     """
     text = text.lower()
-    text = re.sub(r'\s+', '_', text)
-    text = re.sub(r'[^a-z0-9_.-]', '', text)
-    return text[:60].strip('_')
+    text = re.sub(r"\s+", "_", text)
+    text = re.sub(r"[^a-z0-9_.-]", "", text)
+    return text[:60].strip("_")
 
 
 def select_from_list(options, prompt_text):
@@ -36,7 +42,7 @@ def select_from_list(options, prompt_text):
     if options:
         print(f"\nExisting {prompt_text}s:")
         for i, option in enumerate(options):
-            print(f"  {i+1}: {option}")
+            print(f"  {i + 1}: {option}")
         print("  (Or, type a new name to create a new one)")
 
     choice = input(f"Enter the {prompt_text} name or number: ").strip()
@@ -60,8 +66,12 @@ def get_multiline_input(prompt):
 
 
 def create_new_entry(content_root=None):
-    """
-    Main function to guide the user through creating a new Q&A entry.
+    """Guides the user through creating a new Q&A entry.
+
+    This function prompts the user for all necessary information (domain, topic,
+    subtopic, question, answer, thinking process, difficulty, keywords) and then
+    generates and saves the new entry as a Markdown file
+    in the appropriate directory structure.
     """
     print("--- CodeCoil: New Q&A Entry Creator ---")
 
@@ -100,7 +110,7 @@ def create_new_entry(content_root=None):
     thinking = ""
     thinking_prompt = "Include the model's 'Thinking' process? (y/n): "
     include_thinking = input(thinking_prompt).strip().lower()
-    if include_thinking == 'y':
+    if include_thinking == "y":
         thinking = get_multiline_input("Thinking")
 
     # 3. Get Metadata
@@ -108,18 +118,16 @@ def create_new_entry(content_root=None):
     diff_prompt = "Difficulty (easy, medium, hard) [easy]: "
     difficulty = input(diff_prompt).strip().lower() or "easy"
     keywords_raw = input("Keywords (comma-separated): ").strip()
-    keywords = [f'"{k.strip()}"' for k in keywords_raw.split(',') if k.strip()]
+    keywords = [f'"{k.strip()}"' for k in keywords_raw.split(",") if k.strip()]
 
     # 4. Generate File Name and ID
-    filename_prompt = (
-        "Enter custom filename (or press Enter to auto-generate): "
-    )
+    filename_prompt = "Enter custom filename (or press Enter to auto-generate): "
     custom_filename = input(filename_prompt).strip()
 
     if custom_filename:
         # Ensure it has a .md extension
-        if not custom_filename.endswith('.md'):
-            custom_filename += '.md'
+        if not custom_filename.endswith(".md"):
+            custom_filename += ".md"
         filename = sanitize_filename(custom_filename)
     else:
         # Find the highest existing number in the directory to avoid collisions
@@ -132,7 +140,7 @@ def create_new_entry(content_root=None):
 
     date_str = datetime.now().strftime("%Y%m%d")
     # A simple way to generate a semi-unique ID for the day
-    id_num = len(list(domain_path.glob('**/*.md'))) + 1
+    id_num = len(list(domain_path.glob("**/*.md"))) + 1
     unique_id = f"{date_str}-{id_num:04d}"
 
     # 5. Assemble the final Markdown content
@@ -140,10 +148,10 @@ def create_new_entry(content_root=None):
     front_matter = (
         f"---\n"
         f"id: {unique_id}\n"
-        f"domain: \"{domain}\"\n"
-        f"topic: \"{topic}\"\n"
-        f"subtopic: \"{subtopic}\"\n"
-        f"difficulty: \"{difficulty}\"\n"
+        f'domain: "{domain}"\n'
+        f'topic: "{topic}"\n'
+        f'subtopic: "{subtopic}"\n'
+        f'difficulty: "{difficulty}"\n'
         "keywords:\n"
         f"  - {keywords_formatted}\n"
         "---\n"
@@ -159,7 +167,7 @@ def create_new_entry(content_root=None):
 
     # 6. Write the file
     try:
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(final_text)
         print("\n--- Success! ---")
         print(f"New entry created at: {file_path}")

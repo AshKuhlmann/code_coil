@@ -1,13 +1,20 @@
-import sys
 import builtins
+import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+import sys
+from pathlib import Path
+
 import create_entry  # noqa: E402
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 
 
 def test_get_multiline_input_long_and_odd(monkeypatch):
+    """Test get_multiline_input with long and odd input."""
     lines = [
         "weird start !!!",
         """long line with special chars !@#$%^&*()""" + "x" * 500,
@@ -20,7 +27,11 @@ def test_get_multiline_input_long_and_odd(monkeypatch):
     assert result == expected
 
 
+
+
+
 def test_create_entry_with_long_inputs(tmp_path, monkeypatch):
+    """Test create_new_entry with long inputs."""
     root = tmp_path / "content" / "python"
     root.mkdir(parents=True)
 
