@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-import create_entry
+import create_entry  # noqa: E402
 
 
 def test_get_multiline_input_long_and_odd(monkeypatch):
@@ -55,4 +55,3 @@ def test_create_entry_with_long_inputs(tmp_path, monkeypatch):
     assert long_question in text
     assert long_answer in text
     assert long_thinking in text
-
