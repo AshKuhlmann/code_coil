@@ -18,7 +18,7 @@ mypy = "*"
 beartype = "*"
 types-PyYAML = "*"
 tomli-w = "*"
-flake8 = "*"
+
 
 [tool.ruff]
 line-length = 88

@@ -28,7 +28,7 @@ def sanitize_filename(text):
     text = text.lower()
     text = re.sub(r'\s+', '_', text)
     text = re.sub(r'[^a-z0-9_.-]', '', text)
-    return text[:60]  # Truncate to 60 characters
+    return text[:60].strip('_')
 
 
 def select_from_list(options, prompt_text):
