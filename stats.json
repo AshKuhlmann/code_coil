@@ -1,0 +1,108 @@
+{
+  "total_entries": 24,
+  "cot_entries": 0,
+  "no_cot_entries": 24,
+  "total_topics": 4,
+  "topic_distribution": {
+    "Data Structures": 12,
+    "Basics": 10,
+    "machine_learning": 1,
+    "test_topic": 1
+  },
+  "total_subtopics": 6,
+  "subtopic_distribution": {
+    "lists": 7,
+    "dictionaries": 5,
+    "operators": 5,
+    "variables_and_types": 5,
+    "regression": 1,
+    "test_subtopic": 1
+  },
+  "difficulty": {
+    "easy": 19,
+    "medium": 5
+  },
+  "most_common_keywords": [
+    [
+      "operator",
+      5
+    ],
+    [
+      "dictionary",
+      4
+    ],
+    [
+      "syntax",
+      3
+    ],
+    [
+      "list",
+      3
+    ],
+    [
+      "data type",
+      3
+    ],
+    [
+      "access",
+      2
+    ],
+    [
+      "method",
+      2
+    ],
+    [
+      "key",
+      2
+    ],
+    [
+      "dict",
+      2
+    ],
+    [
+      "assignment",
+      2
+    ],
+    [
+      "arithmetic",
+      2
+    ],
+    [
+      "indexing",
+      1
+    ],
+    [
+      "zero-based",
+      1
+    ],
+    [
+      "slicing",
+      1
+    ],
+    [
+      "subset",
+      1
+    ],
+    [
+      "len",
+      1
+    ],
+    [
+      "size",
+      1
+    ],
+    [
+      "function",
+      1
+    ],
+    [
+      "remove",
+      1
+    ],
+    [
+      "list comprehension",
+      1
+    ]
+  ],
+  "total_unique_keywords": 53
+}

@@ -10,6 +10,8 @@ packages = [{ include = "code_coil" }]
 python = "^3.11"
 pyyaml = "^6.0.1" # Needed for the one-time migration
 pandas = "^2.0.3"   # For data analysis
+python-frontmatter = "^1.0.0"
+matplotlib = "^3.8.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "*"

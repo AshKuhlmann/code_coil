@@ -9,10 +9,11 @@ filename creation, and proper file placement within the 'content/' directory.
 import os
 import re
 import tkinter as tk
-from datetime import datetime
 from tkinter import messagebox, ttk
 
 import yaml
+
+from code_coil.entry import QAEntry, generate_unique_id
 
 
 class AutocompleteCombobox(ttk.Combobox):
@@ -129,31 +130,35 @@ class DataEntryApp:
             dict: A dictionary containing sorted lists of unique metadata values.
 
         """
-        data = {
-            "domains": set(),
-            "topics": set(),
-            "subtopics": set(),
-            "difficulties": {"easy", "medium", "hard"},
-            "keywords": set(),
-        }
+        self.domain_topic_subtopic_map = {}
         content_dir = "content"
-        for _root, _dirs, files in os.walk(content_dir):
+        for root, dirs, files in os.walk(content_dir):
             for file in files:
                 if file.endswith(".md"):
-                    filepath = os.path.join(_root, file)
+                    filepath = os.path.join(root, file)
                     with open(filepath, "r", encoding="utf-8") as f:
                         content = f.read()
                         match = re.match(r"---(.*?)---", content, re.DOTALL)
                         if match:
                             try:
                                 front_matter = yaml.safe_load(match.group(1))
-                                if "domain" in front_matter:
-                                    data["domains"].add(front_matter["domain"])
-                                if "topic" in front_matter:
-                                    data["topics"].add(front_matter["topic"])
-                                if "subtopic" in front_matter:
-                                    data["subtopics"].add(front_matter["subtopic"])
-                                if "difficulty" in front_matter:
+                                domain = front_matter.get("domain")
+                                topic = front_matter.get("topic")
+                                subtopic = front_matter.get("subtopic")
+
+                                if domain:
+                                    data["domains"].add(domain)
+                                    if domain not in self.domain_topic_subtopic_map:
+                                        self.domain_topic_subtopic_map[domain] = {}
+                                    if topic:
+                                        data["topics"].add(topic)
+                                        if topic not in self.domain_topic_subtopic_map[domain]:
+                                            self.domain_topic_subtopic_map[domain][topic] = set()
+                                        if subtopic:
+                                            data["subtopics"].add(subtopic)
+                                            self.domain_topic_subtopic_map[domain][topic].add(subtopic)
+
+                                if front_matter.get("difficulty"):
                                     data["difficulties"].add(front_matter["difficulty"])
                                 if "keywords" in front_matter and isinstance(
                                     front_matter["keywords"], list
@@ -177,7 +182,7 @@ class DataEntryApp:
             ("Topic:", "topic", "combobox"),
             ("Subtopic:", "subtopic", "combobox"),
             ("Difficulty:", "difficulty", "combobox"),
-            ("Keywords (comma-separated):", "keywords", "entry"),
+            ("Keywords (comma-separated, e.g., python, list):", "keywords", "entry"),
             ("Question:", "question", "text"),
             ("Think:", "think", "text"),
             ("Answer:", "answer", "text"),
@@ -200,9 +205,11 @@ class DataEntryApp:
                 elif key == "domain":
                     combobox = AutocompleteCombobox(self.master, width=47)
                     combobox.set_completion_list(self.existing_data["domains"])
+                    combobox.bind("<<ComboboxSelected>>", self.update_topics)
                 elif key == "topic":
                     combobox = AutocompleteCombobox(self.master, width=47)
                     combobox.set_completion_list(self.existing_data["topics"])
+                    combobox.bind("<<ComboboxSelected>>", self.update_subtopics)
                 elif key == "subtopic":
                     combobox = AutocompleteCombobox(self.master, width=47)
                     combobox.set_completion_list(self.existing_data["subtopics"])
@@ -219,6 +226,22 @@ class DataEntryApp:
         self.submit_button.grid(row=len(fields), column=0, columnspan=2, pady=10)
 
         self.master.grid_columnconfigure(1, weight=1)
+
+    def update_topics(self, event=None):
+        selected_domain = self.entries["domain"].get()
+        self.entries["topic"].set("")  # Clear current topic
+        self.entries["subtopic"].set("")  # Clear current subtopic
+        topics = sorted(list(self.domain_topic_subtopic_map.get(selected_domain, {}).keys()))
+        self.entries["topic"].set_completion_list(topics)
+        self.entries["topic"]["values"] = topics
+
+    def update_subtopics(self, event=None):
+        selected_domain = self.entries["domain"].get()
+        selected_topic = self.entries["topic"].get()
+        self.entries["subtopic"].set("")  # Clear current subtopic
+        subtopics = sorted(list(self.domain_topic_subtopic_map.get(selected_domain, {}).get(selected_topic, set())))
+        self.entries["subtopic"].set_completion_list(subtopics)
+        self.entries["subtopic"]["values"] = subtopics
 
     def add_entry(self):
         """Handle the submission of a new Q&A entry.
@@ -253,65 +276,25 @@ class DataEntryApp:
         data["keywords"] = keywords
 
         # Generate ID
-        today = datetime.now().strftime("%Y%m%d")
-        # Find the next available ID for today
-        existing_ids = []
-        for _root, _dirs, files in os.walk("content"):
-            for file in files:
-                if file.endswith(".md"):
-                    match = re.match(r"(\d{8})-\d{3}_.*\.md", file)
-                    if match and match.group(1) == today:
-                        existing_ids.append(int(file[9:12]))  # Extract the 001 part
-
-        next_id_num = 1
-        if existing_ids:
-            next_id_num = max(existing_ids) + 1
-
-        entry_id = f"{today}-{next_id_num:03d}"
+        entry_id = generate_unique_id()
         data["id"] = entry_id
 
-        # Generate filename (slugify question)
-        question_slug = re.sub(r"[^a-z0-9]+", "_", data["question"].lower())
-        question_slug = question_slug.strip("_")
-        filename = f"{entry_id}_{question_slug}.md"
-
-        # Construct file path
-        # content/domain/topic/subtopic/filename.md
-        file_dir = os.path.join(
-            "content", data["domain"], data["topic"], data["subtopic"]
+        # Create QAEntry object
+        entry = QAEntry(
+            id=data["id"],
+            domain=data["domain"],
+            topic=data["topic"],
+            subtopic=data["subtopic"],
+            difficulty=data["difficulty"],
+            keywords=data["keywords"],
+            question=data["question"],
+            think=data["think"],
+            answer=data["answer"],
         )
-        os.makedirs(file_dir, exist_ok=True)
-        file_path = os.path.join(file_dir, filename)
 
-        # Create Markdown content
-        md_content = f"""---
-id: {data["id"]}
-domain: "{data["domain"]}"
-topic: "{data["topic"]}"
-subtopic: "{data["subtopic"]}"
-difficulty: "{data["difficulty"]}"
-keywords:
-"""
-        for kw in data["keywords"]:
-            md_content += f'  - "{kw}"\n'
-        md_content += f"""---
-
-# Question
-
-{data["question"]}
-
-# Think
-
-{data["think"]}
-
-# Answer
-
-{data["answer"]}
-"""
         try:
-            with open(file_path, "w", encoding="utf-8") as f:
-                f.write(md_content)
-            messagebox.showinfo("Success", f"Entry added successfully to:\n{file_path}")
+            entry.save()
+            messagebox.showinfo("Success", f"Entry added successfully for ID: {entry.id}")
             self.clear_fields()
         except Exception as e:
             messagebox.showerror("Error", f"Failed to write file: {e}")

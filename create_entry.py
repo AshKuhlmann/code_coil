@@ -4,9 +4,9 @@ This script guides the user through the process of inputting question, answer,
 and metadata, then generates and saves the new entry as a Markdown file
 in the appropriate directory structure.
 """
-import re
-from datetime import datetime
 from pathlib import Path
+
+from code_coil.entry import QAEntry, generate_unique_id, sanitize_filename
 
 # --- Configuration ---
 # The root directory where all the Q&A markdown files are stored.
@@ -15,29 +15,14 @@ CONTENT_ROOT = "content"
 INPUT_TERMINATOR = "::END::"
 
 
-def get_existing_dirs(path):
+def get_existing_dirs(path: Path) -> list[str]:
     """Return a sorted list of existing directories at a given path."""
     if not path.is_dir():
         return []
     return sorted([d.name for d in path.iterdir() if d.is_dir()])
 
 
-def sanitize_filename(text):
-    """Sanitize a string for use as a filename.
-
-    Takes a string and returns a sanitized version suitable for a filename.
-    - Converts to lowercase
-    - Replaces spaces and special characters with underscores
-    - Removes any remaining invalid filename characters
-    - Truncates to a reasonable length
-    """
-    text = text.lower()
-    text = re.sub(r"\s+", "_", text)
-    text = re.sub(r"[^a-z0-9_.-]", "", text)
-    return text[:60].strip("_")
-
-
-def select_from_list(options, prompt_text):
+def select_from_list(options: list[str], prompt_text: str) -> str:
     """Display options and prompt the user to select or create a new one."""
     if options:
         print(f"\nExisting {prompt_text}s:")
@@ -53,7 +38,7 @@ def select_from_list(options, prompt_text):
     return choice.lower().replace(" ", "_")
 
 
-def get_multiline_input(prompt):
+def get_multiline_input(prompt: str) -> str:
     """Collect multi-line input until the terminator is entered."""
     lines = []
     print(f"{prompt} (type '{INPUT_TERMINATOR}' on a new line when finished):")
@@ -65,7 +50,7 @@ def get_multiline_input(prompt):
     return "\n".join(lines)
 
 
-def create_new_entry(content_root=None):
+def create_new_entry(content_root: str | None = None) -> None:
     """Guides the user through creating a new Q&A entry.
 
     This function prompts the user for all necessary information (domain, topic,
@@ -120,57 +105,30 @@ def create_new_entry(content_root=None):
     keywords_raw = input("Keywords (comma-separated): ").strip()
     keywords = [f'"{k.strip()}"' for k in keywords_raw.split(",") if k.strip()]
 
-    # 4. Generate File Name and ID
+    # 4. Generate ID
+    unique_id = generate_unique_id(str(root_path))
+
+    # 5. Assemble QAEntry object
+    entry = QAEntry(
+        id=unique_id,
+        domain=domain,
+        topic=topic,
+        subtopic=subtopic,
+        difficulty=difficulty,
+        keywords=keywords,
+        question=question,
+        think=thinking,
+        answer=answer,
+    )
+
+    # 6. Save the file
     filename_prompt = "Enter custom filename (or press Enter to auto-generate): "
     custom_filename = input(filename_prompt).strip()
 
-    if custom_filename:
-        # Ensure it has a .md extension
-        if not custom_filename.endswith(".md"):
-            custom_filename += ".md"
-        filename = sanitize_filename(custom_filename)
-    else:
-        # Find the highest existing number in the directory to avoid collisions
-        existing_files = list(subtopic_path.glob("*.md"))
-        next_num = len(existing_files) + 1
-        sanitized_q = sanitize_filename(question)
-        filename = f"{next_num:03d}_{sanitized_q}.md"
-
-    file_path = subtopic_path / filename
-
-    date_str = datetime.now().strftime("%Y%m%d")
-    # A simple way to generate a semi-unique ID for the day
-    id_num = len(list(domain_path.glob("**/*.md"))) + 1
-    unique_id = f"{date_str}-{id_num:04d}"
-
-    # 5. Assemble the final Markdown content
-    keywords_formatted = "\n  - ".join(keywords)
-    front_matter = (
-        f"---\n"
-        f"id: {unique_id}\n"
-        f'domain: "{domain}"\n'
-        f'topic: "{topic}"\n'
-        f'subtopic: "{subtopic}"\n'
-        f'difficulty: "{difficulty}"\n'
-        "keywords:\n"
-        f"  - {keywords_formatted}\n"
-        "---\n"
-    )
-
-    # Build the main content, including the optional "Think" section
-    main_content = f"\n# Question\n\n{question}\n"
-    if thinking:
-        main_content += f"\n# Think\n\n{thinking}\n"
-    main_content += f"\n# Answer\n\n{answer}\n"
-
-    final_text = front_matter + main_content
-
-    # 6. Write the file
     try:
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write(final_text)
+        entry.save(content_root=str(root_path), custom_filename=custom_filename)
         print("\n--- Success! ---")
-        print(f"New entry created at: {file_path}")
+        print(f"New entry created for ID: {unique_id}")
     except IOError as e:
         print(f"\nError: Could not write file. {e}")
 

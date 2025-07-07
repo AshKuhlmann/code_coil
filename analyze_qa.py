@@ -6,11 +6,28 @@ difficulty levels, and the presence of 'Think' sections.
 """
 from pathlib import Path
 
+import json
+from collections import Counter
+from pathlib import Path
+
 import frontmatter
+import matplotlib.pyplot as plt
 import pandas as pd
 
 
-def analyze_dataset(domain: str = "python", root_path: str = "content"):
+def plot_distribution(data: pd.Series, title: str, filename: str):
+    plt.figure(figsize=(10, 6))
+    data.plot(kind="bar")
+    plt.title(title)
+    plt.xlabel("Category")
+    plt.ylabel("Number of Entries")
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
+    plt.savefig(f"docs/img/{filename}.png")
+    plt.close()
+
+
+def analyze_dataset(domain: str = "python", root_path: str = "content") -> None:
     """Analyzes the dataset.
 
     Walks through the dataset directory, parses metadata from each file,
@@ -47,24 +64,60 @@ def analyze_dataset(domain: str = "python", root_path: str = "content"):
     print(f"Entries with CoT: {think_section_count}")
     print(f"Entries without CoT: {len(df) - think_section_count}\n")
 
+    stats = {
+        "total_entries": len(df),
+        "cot_entries": think_section_count,
+        "no_cot_entries": len(df) - think_section_count,
+    }
+
     # Generate value counts for key metadata fields
     if "topic" in df.columns:
+        topic_counts = df["topic"].value_counts()
         print("--- Content by Topic ---")
-        print(df["topic"].value_counts())
+        print(topic_counts)
         print("\n")
+        plot_distribution(topic_counts, "Content by Topic", "topic_distribution")
+        stats["total_topics"] = len(topic_counts)
+        stats["topic_distribution"] = topic_counts.to_dict()
 
     if "subtopic" in df.columns:
+        subtopic_counts = df["subtopic"].value_counts()
         print("--- Content by Subtopic ---")
-        print(df["subtopic"].value_counts())
+        print(subtopic_counts)
         print("\n")
+        plot_distribution(subtopic_counts, "Content by Subtopic", "subtopic_distribution")
+        stats["total_subtopics"] = len(subtopic_counts)
+        stats["subtopic_distribution"] = subtopic_counts.to_dict()
 
     if "difficulty" in df.columns:
+        difficulty_counts = df["difficulty"].value_counts()
         print("--- Content by Difficulty ---")
-        print(df["difficulty"].value_counts())
+        print(difficulty_counts)
         print("\n")
+        plot_distribution(difficulty_counts, "Content by Difficulty", "difficulty_distribution")
+        stats["difficulty"] = difficulty_counts.to_dict()
+
+    # Keyword Analysis
+    if "keywords" in df.columns:
+        all_keywords = []
+        for keywords_list in df["keywords"].dropna():
+            all_keywords.extend(keywords_list)
+        keyword_counts = Counter(all_keywords)
+        most_common_keywords = keyword_counts.most_common(20)  # Top 20 keywords
+        print("--- Most Common Keywords ---")
+        for keyword, count in most_common_keywords:
+            print(f"- {keyword}: {count}")
+        print("\n")
+        stats["most_common_keywords"] = most_common_keywords
+        stats["total_unique_keywords"] = len(keyword_counts)
+
+    # Save stats to JSON
+    with open("stats.json", "w", encoding="utf-8") as f:
+        json.dump(stats, f, indent=2, ensure_ascii=False)
 
     print("--- Analysis Complete ---\n")
-
+    print("Statistics saved to stats.json")
+    print("Plots saved to docs/img/")
 
 if __name__ == "__main__":
     analyze_dataset()
