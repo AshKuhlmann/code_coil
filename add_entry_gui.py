@@ -5,6 +5,7 @@ for a new Q&A entry, including metadata (domain, topic, subtopic, difficulty, ke
 and the question, thinking process, and answer content. It automates ID generation,
 filename creation, and proper file placement within the 'content/' directory.
 """
+
 import os
 import re
 import tkinter as tk
@@ -42,7 +43,7 @@ class AutocompleteCombobox(ttk.Combobox):
         self._completion_list = sorted(completion_list, key=str.lower)
 
     def autocomplete(self, delta=0):
-        """Performs the autocomplete operation.
+        """Perform the autocomplete operation.
 
         Args:
             delta (int): 0 to autocomplete the current input, 1 to cycle to the
@@ -120,8 +121,9 @@ class DataEntryApp:
         self.create_widgets()
 
     def load_existing_data(self):
-        """Loads existing metadata (domains, topics, subtopics, difficulties, keywords)
-        from the Markdown files in the 'content/' directory.
+        """Load existing metadata (domains, topics, subtopics, difficulties, keywords).
+
+        Loads data from the Markdown files in the 'content/' directory.
 
         Returns:
             dict: A dictionary containing sorted lists of unique metadata values.
@@ -153,8 +155,9 @@ class DataEntryApp:
                                     data["subtopics"].add(front_matter["subtopic"])
                                 if "difficulty" in front_matter:
                                     data["difficulties"].add(front_matter["difficulty"])
-                                if "keywords" in front_matter and \
-                                        isinstance(front_matter["keywords"], list):
+                                if "keywords" in front_matter and isinstance(
+                                    front_matter["keywords"], list
+                                ):
                                     for kw in front_matter["keywords"]:
                                         data["keywords"].add(kw)
                             except yaml.YAMLError:
@@ -163,7 +166,7 @@ class DataEntryApp:
         return {k: sorted(list(v)) for k, v in data.items()}
 
     def create_widgets(self):
-        """Creates and arranges the GUI widgets (labels, entry fields, buttons)."""
+        """Create and arrange the GUI widgets (labels, entry fields, buttons)."""
         # Labels and Entry fields
         self.labels = {}
         self.entries = {}
@@ -191,9 +194,9 @@ class DataEntryApp:
                 self.entries[key] = entry
             elif widget_type == "combobox":
                 if key == "difficulty":
-                    combobox = ttk.Combobox(self.master,
-                                            values=self.existing_data["difficulties"],
-                                            width=47)
+                    combobox = ttk.Combobox(
+                        self.master, values=self.existing_data["difficulties"], width=47
+                    )
                 elif key == "domain":
                     combobox = AutocompleteCombobox(self.master, width=47)
                     combobox.set_completion_list(self.existing_data["domains"])
@@ -210,17 +213,18 @@ class DataEntryApp:
                 text_area.grid(row=i, column=1, padx=5, pady=2, sticky="ew")
                 self.text_areas[key] = text_area
 
-        self.submit_button = tk.Button(self.master, text="Add Entry",
-                                       command=self.add_entry)
+        self.submit_button = tk.Button(
+            self.master, text="Add Entry", command=self.add_entry
+        )
         self.submit_button.grid(row=len(fields), column=0, columnspan=2, pady=10)
 
         self.master.grid_columnconfigure(1, weight=1)
 
     def add_entry(self):
-        """Handles the submission of a new Q&A entry.
+        """Handle the submission of a new Q&A entry.
 
-        Validates input, generates ID and filename, constructs Markdown content,
-        and saves the entry to the appropriate file path.
+        Validate input, generate ID and filename, construct Markdown content,
+        and save the entry to the appropriate file path.
         """
         data = {}
         for key, entry_widget in self.entries.items():
@@ -229,18 +233,23 @@ class DataEntryApp:
             data[key] = text_widget.get("1.0", tk.END).strip()
 
         # Validate required fields
-        required_fields = ["domain", "topic", "subtopic", "difficulty",
-                           "question", "answer"]
+        required_fields = [
+            "domain",
+            "topic",
+            "subtopic",
+            "difficulty",
+            "question",
+            "answer",
+        ]
         for field in required_fields:
             if not data[field]:
-                messagebox.showerror("Error",
-                                     f"'{field.replace('_', ' ').title()}' "
-                                     "is a required field.")
+                messagebox.showerror(
+                    "Error", f"'{field.replace('_', ' ').title()}' is a required field."
+                )
                 return
 
         # Process keywords
-        keywords = [kw.strip() for kw in data["keywords"].split(",")
-                    if kw.strip()]
+        keywords = [kw.strip() for kw in data["keywords"].split(",") if kw.strip()]
         data["keywords"] = keywords
 
         # Generate ID
@@ -268,8 +277,9 @@ class DataEntryApp:
 
         # Construct file path
         # content/domain/topic/subtopic/filename.md
-        file_dir = os.path.join("content", data["domain"],
-                                data["topic"], data["subtopic"])
+        file_dir = os.path.join(
+            "content", data["domain"], data["topic"], data["subtopic"]
+        )
         os.makedirs(file_dir, exist_ok=True)
         file_path = os.path.join(file_dir, filename)
 
@@ -301,14 +311,13 @@ keywords:
         try:
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write(md_content)
-            messagebox.showinfo("Success",
-                                f"Entry added successfully to:\n{file_path}")
+            messagebox.showinfo("Success", f"Entry added successfully to:\n{file_path}")
             self.clear_fields()
         except Exception as e:
             messagebox.showerror("Error", f"Failed to write file: {e}")
 
     def clear_fields(self):
-        """Clears all input fields in the GUI."""
+        """Clear all input fields in the GUI."""
         for _key, entry_widget in self.entries.items():
             entry_widget.delete(0, tk.END)
         for _key, text_widget in self.text_areas.items():
@@ -317,5 +326,18 @@ keywords:
 
 if __name__ == "__main__":
     root = tk.Tk()
+    # Set window icon
+    try:
+        icon_path = os.path.join(
+            os.path.dirname(__file__), "assets", "icons", "add_icon.png"
+        )
+        if os.path.exists(icon_path):
+            icon = tk.PhotoImage(file=icon_path)
+            root.iconphoto(False, icon)
+        else:
+            print(f"Warning: Icon file not found at {icon_path}")
+    except Exception as e:
+        print(f"Error setting icon: {e}")
+
     app = DataEntryApp(root)
     root.mainloop()

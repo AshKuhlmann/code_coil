@@ -71,7 +71,10 @@ class TestCreateEntryUtils(unittest.TestCase):
         options = ["item1", "item2"]
         self.assertEqual(select_from_list(options, "test_prompt"), "item2")
 
-    @patch("builtins.input", side_effect=["line1", "line2", INPUT_TERMINATOR])    def test_get_multiline_input(self, mock_input):        """Test get_multiline_input with multiple lines."""        self.assertEqual(get_multiline_input("Test Prompt"), "line1\nline2")
+    @patch("builtins.input", side_effect=["line1", "line2", INPUT_TERMINATOR])
+    def test_get_multiline_input(self, mock_input):
+        """Test get_multiline_input with multiple lines."""
+        self.assertEqual(get_multiline_input("Test Prompt"), "line1\nline2")
 
     @patch("builtins.input", side_effect=[INPUT_TERMINATOR])
     def test_get_multiline_input_empty(self, mock_input):

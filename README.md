@@ -1,15 +1,24 @@
-# CodeCoil
+# Zenith Archive
 
-A curated Python Q&A dataset.
+A configurable file organizer that sorts files into predefined categories based on their extension.
 
-## Data Entry GUI
+## Features
 
-A lightweight Python GUI application (`add_entry_gui.py`) is available to facilitate adding new Q&A entries to the repository. This tool automates ID generation, filename creation, and proper file placement based on the provided metadata.
+-   Sorts files into categories like Documents, Audio, Video, etc.
+-   Customizable sorting rules via a `config.yaml` file.
+-   Option to ignore specific files.
+-   Logs all file movement operations.
+-   Specify source and destination directories.
 
-To run the GUI:
+## Installation
 
 ```bash
-python add_entry_gui.py
+# (Coming soon)
+pip install zenith_archive
 ```
 
-Fill in the required fields. The tool will automatically handle ID generation, filename creation, and placing the file in the correct directory (`content/domain/topic/subtopic/`).
+## Usage
+
+```bash
+python -m zenith_archive.main --source /path/to/sort --docs /path/to/documents
+```

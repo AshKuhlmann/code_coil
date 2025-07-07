@@ -1,0 +1,15 @@
+# zenith_archive configuration
+
+# The base directory for all sorted documents.
+# If not specified, a 'DOCUMENTS' directory will be created in the current working directory.
+documents_dir: null
+
+# A list of file names or patterns to ignore.
+# The archiver will not move these files.
+ignore_files:
+  - ".DS_Store"
+  - "thumbs.db"
+
+# Custom sorting rules. These will be merged with the default rules.
+# The key is the destination directory, and the value is a list of extensions.
+custom_rules: {}
