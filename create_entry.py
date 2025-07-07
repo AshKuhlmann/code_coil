@@ -16,14 +16,30 @@ INPUT_TERMINATOR = "::END::"
 
 
 def get_existing_dirs(path: Path) -> list[str]:
-    """Return a sorted list of existing directories at a given path."""
+    """Returns a sorted list of existing directories at a given path.
+
+    Args:
+        path (Path): The path to the directory to scan.
+
+    Returns:
+        list[str]: A sorted list of directory names within the given path.
+    """
     if not path.is_dir():
         return []
     return sorted([d.name for d in path.iterdir() if d.is_dir()])
 
 
 def select_from_list(options: list[str], prompt_text: str) -> str:
-    """Display options and prompt the user to select or create a new one."""
+    """Displays options to the user and prompts them to select an existing one
+    or enter a new one.
+
+    Args:
+        options (list[str]): A list of existing options to display.
+        prompt_text (str): The descriptive text for the input prompt (e.g., "domain").
+
+    Returns:
+        str: The selected or newly entered option, formatted appropriately.
+    """
     if options:
         print(f"\nExisting {prompt_text}s:")
         for i, option in enumerate(options):
@@ -39,7 +55,15 @@ def select_from_list(options: list[str], prompt_text: str) -> str:
 
 
 def get_multiline_input(prompt: str) -> str:
-    """Collect multi-line input until the terminator is entered."""
+    """Collects multi-line input from the user until a specific terminator is entered.
+
+    Args:
+        prompt (str): The prompt to display to the user before inputting lines.
+
+    Returns:
+        str: The concatenated multi-line input, with leading/trailing whitespace removed
+             from each line.
+    """
     lines = []
     print(f"{prompt} (type '{INPUT_TERMINATOR}' on a new line when finished):")
     while True:
@@ -51,22 +75,33 @@ def get_multiline_input(prompt: str) -> str:
 
 
 def create_new_entry(content_root: str | None = None) -> None:
-    """Guides the user through creating a new Q&A entry.
+    """Guides the user through creating a new Q&A entry and saves it to a Markdown file.
 
-    This function prompts the user for all necessary information (domain, topic,
-    subtopic, question, answer, thinking process, difficulty, keywords) and then
-    generates and saves the new entry as a Markdown file
-    in the appropriate directory structure.
+    This function orchestrates the process of collecting all necessary information
+    for a new Q&A entry from the user via command-line prompts. It handles:
+    - Determining the content root directory.
+    - Allowing the user to select or create new domain, topic, and subtopic directories.
+    - Collecting the question, answer, and optional thinking process (chain-of-thought).
+    - Gathering metadata such as difficulty and keywords.
+    - Generating a unique ID for the entry.
+    - Assembling a `QAEntry` object.
+    - Saving the entry as a Markdown file in the correct hierarchical structure.
+    - Providing feedback on success or failure.
+
+    Args:
+        content_root (str | None): The base directory for content. If None, defaults
+                                   to the `CONTENT_ROOT` constant.
     """
     print("--- CodeCoil: New Q&A Entry Creator ---")
 
+    # Determine the root path for content, defaulting if not provided
     root_path = Path(content_root) if content_root else Path(CONTENT_ROOT)
     if not root_path.exists():
         print(f"Error: Content directory '{CONTENT_ROOT}' not found.")
         print("Please run this script from the root of your CodeCoil project.")
         return
 
-    # 1. Get Domain, Topic, and Subtopic
+    # 1. Get Domain, Topic, and Subtopic from user input, creating directories as needed
     existing_domains = get_existing_dirs(root_path)
     domain = select_from_list(existing_domains, "domain")
     domain_path = root_path / domain
@@ -75,13 +110,14 @@ def create_new_entry(content_root: str | None = None) -> None:
     existing_topics = get_existing_dirs(domain_path)
     topic = select_from_list(existing_topics, "topic")
     topic_path = domain_path / topic
+    topic_path.mkdir(parents=True, exist_ok=True) # Ensure topic directory exists
 
     existing_subtopics = get_existing_dirs(topic_path)
     subtopic = select_from_list(existing_subtopics, "subtopic")
     subtopic_path = topic_path / subtopic
-    subtopic_path.mkdir(parents=True, exist_ok=True)
+    subtopic_path.mkdir(parents=True, exist_ok=True) # Ensure subtopic directory exists
 
-    # 2. Get Content (Question, Answer, and optional Thinking)
+    # 2. Get Content (Question, Answer, and optional Thinking process)
     print("\n--- Enter Content ---")
     # All text fields require the terminator to finish input
     question = get_multiline_input("Question").strip()
@@ -98,17 +134,18 @@ def create_new_entry(content_root: str | None = None) -> None:
     if include_thinking == "y":
         thinking = get_multiline_input("Thinking")
 
-    # 3. Get Metadata
+    # 3. Get Metadata (Difficulty and Keywords)
     print("\n--- Enter Metadata ---")
     diff_prompt = "Difficulty (easy, medium, hard) [easy]: "
     difficulty = input(diff_prompt).strip().lower() or "easy"
     keywords_raw = input("Keywords (comma-separated): ").strip()
+    # Format keywords as a list of strings, ensuring each is stripped and quoted for YAML
     keywords = [f'"{k.strip()}"' for k in keywords_raw.split(",") if k.strip()]
 
-    # 4. Generate ID
+    # 4. Generate a unique ID for the new entry
     unique_id = generate_unique_id(str(root_path))
 
-    # 5. Assemble QAEntry object
+    # 5. Assemble QAEntry object with all collected data
     entry = QAEntry(
         id=unique_id,
         domain=domain,
@@ -121,7 +158,7 @@ def create_new_entry(content_root: str | None = None) -> None:
         answer=answer,
     )
 
-    # 6. Save the file
+    # 6. Save the file, allowing for a custom filename or auto-generation
     filename_prompt = "Enter custom filename (or press Enter to auto-generate): "
     custom_filename = input(filename_prompt).strip()
 
@@ -134,4 +171,6 @@ def create_new_entry(content_root: str | None = None) -> None:
 
 
 if __name__ == "__main__":
+    # Execute the entry creation process when the script is run directly
     create_new_entry()
+

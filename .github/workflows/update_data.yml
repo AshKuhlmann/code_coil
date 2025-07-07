@@ -1,0 +1,40 @@
+name: Update Data and Stats
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'content/**'
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Run analyze_qa.py and export.py
+      run: |
+        python analyze_qa.py
+        python export.py
+
+    - name: Commit and push changes
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git add stats.json training_dataset.json docs/img/*.png
+        git commit -m "Automated: Update stats.json, training_dataset.json, and plots" || echo "No changes to commit"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

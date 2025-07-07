@@ -16,6 +16,13 @@ import pandas as pd
 
 
 def plot_distribution(data: pd.Series, title: str, filename: str):
+    """Generates and saves a bar plot for the given data series.
+
+    Args:
+        data (pd.Series): The data series to plot.
+        title (str): The title of the plot.
+        filename (str): The name of the file to save the plot as (e.g., "topic_distribution").
+    """
     plt.figure(figsize=(10, 6))
     data.plot(kind="bar")
     plt.title(title)
@@ -28,10 +35,33 @@ def plot_distribution(data: pd.Series, title: str, filename: str):
 
 
 def analyze_dataset(domain: str = "python", root_path: str = "content") -> None:
-    """Analyzes the dataset.
+    """Analyzes the dataset by walking through the content directory, parsing metadata,
+    and generating reports and visualizations.
 
-    Walks through the dataset directory, parses metadata from each file,
-    and prints a report on content coverage.
+    This function performs the following steps:
+    1. Initializes an empty list to store metadata from Markdown files.
+    2. Initializes a counter for entries containing a 'Think' section.
+    3. Constructs the full path to the content directory.
+    4. Iterates through all Markdown files in the specified domain and root path.
+    5. For each Markdown file, it attempts to parse the frontmatter.
+    6. If parsing is successful, it appends the metadata to a list and checks for the presence
+       of a 'Think' section in the content.
+    7. If no metadata is found after parsing all files, it prints a warning and exits.
+    8. Converts the collected metadata into a Pandas DataFrame for easier analysis.
+    9. Prints a summary report including total entries and Chain-of-Thought usage.
+    10. Generates and prints value counts for 'topic', 'subtopic', and 'difficulty' if these
+        columns exist in the DataFrame.
+    11. Calls `plot_distribution` to create and save bar plots for topic, subtopic, and difficulty
+        distributions.
+    12. Performs keyword analysis by counting the occurrences of each keyword and printing the
+        20 most common ones.
+    13. Saves all collected statistics into a `stats.json` file.
+    14. Prints a completion message.
+
+    Args:
+        domain (str): The sub-directory within 'root_path' to search for Markdown files.
+                      Defaults to "python".
+        root_path (str): The base directory where content is stored. Defaults to "content".
     """
     all_metadata = []
     think_section_count = 0
@@ -120,4 +150,6 @@ def analyze_dataset(domain: str = "python", root_path: str = "content") -> None:
     print("Plots saved to docs/img/")
 
 if __name__ == "__main__":
+    # Execute the analysis function when the script is run directly
     analyze_dataset()
+
